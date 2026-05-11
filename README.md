@@ -1,0 +1,2051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LPU School of AI & Emerging Technologies</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+:root {
+  --bg-void: #020509;
+  --bg-deep: #060d17;
+  --bg-card: rgba(6, 20, 40, 0.7);
+  --cyan: #00e5ff;
+  --cyan-glow: rgba(0, 229, 255, 0.3);
+  --purple: #7c3aed;
+  --purple-bright: #a855f7;
+  --gold: #f59e0b;
+  --gold-bright: #fbbf24;
+  --neon-green: #00ff9d;
+  --text-bright: #e8f4f8;
+  --text-mid: #94a3b8;
+  --text-dim: #475569;
+  --border-glow: rgba(0, 229, 255, 0.2);
+  --border-purple: rgba(168, 85, 247, 0.3);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-void);
+  font-family: 'Exo 2', sans-serif;
+  color: var(--text-bright);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Custom cursor */
+.cursor {
+  position: fixed;
+  width: 12px; height: 12px;
+  background: var(--cyan);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+  transition: transform 0.1s ease;
+  box-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan-glow);
+}
+.cursor-ring {
+  position: fixed;
+  width: 40px; height: 40px;
+  border: 1.5px solid var(--cyan);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s ease, width 0.2s, height 0.2s;
+  opacity: 0.5;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-void); }
+::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 4px; }
+
+/* CANVAS */
+#hero-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+
+/* NAVBAR */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 5%;
+  backdrop-filter: blur(20px);
+  background: rgba(2, 5, 9, 0.8);
+  border-bottom: 1px solid var(--border-glow);
+  transition: all 0.3s;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+.logo-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 0 20px var(--cyan-glow);
+}
+.logo-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-bright);
+  line-height: 1.3;
+}
+.logo-text span { color: var(--cyan); display: block; font-size: 10px; letter-spacing: 3px; font-weight: 400; }
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 32px;
+}
+.nav-links a {
+  text-decoration: none;
+  color: var(--text-mid);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: color 0.3s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0; height: 1px;
+  background: var(--cyan);
+  transition: width 0.3s;
+}
+.nav-links a:hover { color: var(--cyan); }
+.nav-links a:hover::after { width: 100%; }
+.nav-cta {
+  background: linear-gradient(90deg, var(--cyan), var(--purple-bright));
+  color: #000 !important;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+}
+.nav-cta:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--cyan-glow); }
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+.hamburger span { display: block; width: 24px; height: 2px; background: var(--cyan); border-radius: 2px; transition: all 0.3s; }
+
+/* HERO */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,229,255,0.04) 0%, transparent 70%),
+              radial-gradient(ellipse 40% 40% at 80% 20%, rgba(124,58,237,0.08) 0%, transparent 60%);
+  z-index: 1;
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 20px;
+  max-width: 900px;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-glow);
+  background: rgba(0,229,255,0.05);
+  padding: 6px 16px;
+  border-radius: 50px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 28px;
+  animation: pulse-border 2s infinite;
+}
+.hero-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--neon-green);
+  border-radius: 50%;
+  animation: blink 1s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes pulse-border {
+  0%,100%{box-shadow:0 0 0 0 rgba(0,229,255,0.2)}
+  50%{box-shadow:0 0 0 6px rgba(0,229,255,0)}
+}
+.hero-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(32px, 6vw, 76px);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -1px;
+}
+.hero-title .line1 { color: var(--text-bright); }
+.hero-title .line2 {
+  background: linear-gradient(90deg, var(--cyan) 0%, var(--purple-bright) 60%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+}
+.hero-sub {
+  font-size: 18px;
+  color: var(--text-mid);
+  max-width: 600px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  color: #000;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+  box-shadow: 0 0 30px rgba(0,229,255,0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 50px rgba(0,229,255,0.5);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--cyan);
+  padding: 14px 32px;
+  border: 1px solid var(--border-glow);
+  border-radius: 8px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+}
+.btn-secondary:hover {
+  background: rgba(0,229,255,0.08);
+  border-color: var(--cyan);
+  transform: translateY(-3px);
+}
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  margin-top: 60px;
+  flex-wrap: wrap;
+}
+.hero-stat {
+  text-align: center;
+}
+.hero-stat .num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 36px;
+  font-weight: 900;
+  background: linear-gradient(180deg, var(--cyan), var(--purple-bright));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+}
+.hero-stat .label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-family: 'Space Mono', monospace;
+}
+.scroll-indicator {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: bounce 2s infinite;
+}
+.scroll-indicator span { font-size: 10px; letter-spacing: 3px; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+.scroll-arrow { width: 1px; height: 40px; background: linear-gradient(var(--cyan), transparent); }
+@keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(10px)} }
+
+/* SECTIONS */
+section { padding: 100px 5%; }
+.section-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::before {
+  content: '';
+  width: 30px;
+  height: 1px;
+  background: var(--cyan);
+}
+.section-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(28px, 4vw, 52px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+.section-title .accent {
+  background: linear-gradient(90deg, var(--cyan), var(--purple-bright));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.section-desc {
+  color: var(--text-mid);
+  font-size: 16px;
+  line-height: 1.8;
+  max-width: 580px;
+}
+
+/* ABOUT SECTION */
+#about {
+  background: linear-gradient(180deg, var(--bg-void) 0%, var(--bg-deep) 100%);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.about-visual {
+  position: relative;
+}
+.about-img-container {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 0 60px rgba(0,229,255,0.08);
+}
+.about-img-container img {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  display: block;
+  filter: saturate(0.6) brightness(0.8);
+}
+.about-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,229,255,0.08) 0%, rgba(124,58,237,0.12) 100%);
+}
+.about-badge {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 16px;
+  padding: 20px 24px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 40px rgba(0,229,255,0.1);
+  text-align: center;
+}
+.about-badge .big-num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--gold);
+  display: block;
+}
+.about-badge .small-text { font-size: 11px; color: var(--text-dim); letter-spacing: 2px; }
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 36px;
+}
+.about-feature {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+}
+.about-feature:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 20px rgba(0,229,255,0.1);
+  transform: translateY(-3px);
+}
+.about-feature .icon { font-size: 24px; margin-bottom: 10px; }
+.about-feature h4 { font-family: 'Orbitron', sans-serif; font-size: 13px; color: var(--text-bright); margin-bottom: 6px; }
+.about-feature p { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+/* PROGRAMS */
+#programs {
+  background: var(--bg-void);
+  text-align: center;
+}
+.programs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 60px;
+  text-align: left;
+}
+.program-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 16px;
+  padding: 32px;
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+  transition: all 0.4s;
+  cursor: pointer;
+  transform-style: preserve-3d;
+}
+.program-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--cyan), var(--purple-bright));
+  transform: scaleX(0);
+  transition: transform 0.4s;
+  transform-origin: left;
+}
+.program-card:hover::before { transform: scaleX(1); }
+.program-card:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 20px 60px rgba(0,229,255,0.1), 0 0 30px rgba(0,229,255,0.05);
+  transform: translateY(-8px);
+}
+.program-card.featured {
+  border-color: var(--purple-bright);
+  background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(6,20,40,0.9));
+}
+.program-card.featured::before { transform: scaleX(1); background: linear-gradient(90deg, var(--purple-bright), var(--gold)); }
+.prog-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+.prog-badge.ug { background: rgba(0,229,255,0.1); color: var(--cyan); border: 1px solid rgba(0,229,255,0.3); }
+.prog-badge.pg { background: rgba(168,85,247,0.1); color: var(--purple-bright); border: 1px solid rgba(168,85,247,0.3); }
+.prog-badge.diploma { background: rgba(245,158,11,0.1); color: var(--gold); border: 1px solid rgba(245,158,11,0.3); }
+.prog-icon { font-size: 36px; margin-bottom: 16px; display: block; }
+.prog-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.prog-desc { font-size: 14px; color: var(--text-dim); line-height: 1.7; margin-bottom: 20px; }
+.prog-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.prog-tag {
+  background: rgba(0,229,255,0.05);
+  border: 1px solid rgba(0,229,255,0.15);
+  color: var(--text-mid);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+}
+.prog-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border-glow);
+  padding-top: 16px;
+}
+.prog-duration { font-size: 12px; color: var(--text-dim); }
+.prog-duration span { color: var(--cyan); font-weight: 600; }
+.prog-link {
+  color: var(--cyan);
+  font-size: 12px;
+  text-decoration: none;
+  font-family: 'Space Mono', monospace;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: gap 0.3s;
+}
+.prog-link:hover { gap: 12px; }
+
+/* RESEARCH */
+#research {
+  background: linear-gradient(180deg, var(--bg-void) 0%, rgba(124,58,237,0.04) 50%, var(--bg-void) 100%);
+  text-align: center;
+}
+.research-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-top: 60px;
+}
+.research-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-purple);
+  border-radius: 14px;
+  padding: 28px;
+  text-align: left;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.research-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(168,85,247,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+.research-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--purple-bright);
+  box-shadow: 0 0 40px rgba(168,85,247,0.1);
+}
+.research-icon { font-size: 32px; margin-bottom: 16px; }
+.research-card h3 { font-family: 'Orbitron', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 10px; color: var(--text-bright); }
+.research-card p { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+.research-number {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 48px;
+  font-weight: 900;
+  color: rgba(168,85,247,0.06);
+  line-height: 1;
+}
+
+/* TECH STRIP */
+.tech-strip {
+  background: var(--bg-deep);
+  padding: 30px 5%;
+  border-top: 1px solid var(--border-glow);
+  border-bottom: 1px solid var(--border-glow);
+  overflow: hidden;
+}
+.tech-strip-inner {
+  display: flex;
+  gap: 60px;
+  animation: scroll-left 20s linear infinite;
+  white-space: nowrap;
+}
+.tech-strip-inner:hover { animation-play-state: paused; }
+@keyframes scroll-left {
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+.tech-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.tech-item .dot { width: 6px; height: 6px; background: var(--cyan); border-radius: 50%; }
+
+/* STATS BAR */
+#stats {
+  background: var(--bg-deep);
+  padding: 60px 5%;
+  border-top: 1px solid var(--border-glow);
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  text-align: center;
+}
+.stat-item .stat-num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.stat-item .stat-num.cyan { color: var(--cyan); }
+.stat-item .stat-num.purple { color: var(--purple-bright); }
+.stat-item .stat-num.gold { color: var(--gold); }
+.stat-item .stat-num.green { color: var(--neon-green); }
+.stat-item .stat-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.stat-item .stat-sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+/* FACULTY */
+#faculty {
+  background: var(--bg-void);
+  text-align: center;
+}
+.faculty-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-top: 60px;
+}
+.faculty-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+}
+.faculty-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--cyan);
+  box-shadow: 0 0 40px rgba(0,229,255,0.08);
+}
+.faculty-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  border: 2px solid var(--border-glow);
+  background: rgba(0,229,255,0.05);
+}
+.faculty-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+}
+.faculty-role { font-size: 12px; color: var(--cyan); margin-bottom: 8px; font-family: 'Space Mono', monospace; }
+.faculty-spec { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.faculty-pubs { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-glow); font-size: 11px; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+
+/* PLACEMENTS */
+#placements {
+  background: linear-gradient(135deg, var(--bg-void) 0%, rgba(0,229,255,0.02) 50%, var(--bg-void) 100%);
+  text-align: center;
+}
+.placement-highlight {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 40px;
+  margin-top: 60px;
+  align-items: center;
+  text-align: left;
+}
+.placement-lhs {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 20px;
+  padding: 40px;
+  backdrop-filter: blur(20px);
+  text-align: center;
+}
+.placement-lhs .big-salary {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), var(--neon-green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+  line-height: 1;
+}
+.placement-lhs .salary-label { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-dim); letter-spacing: 2px; margin-top: 8px; }
+.recruiter-logos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.recruiter-logo {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-mid);
+  transition: all 0.3s;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  min-height: 60px;
+}
+.recruiter-logo:hover { border-color: var(--cyan); color: var(--cyan); transform: scale(1.03); }
+
+/* EVENTS */
+#events {
+  background: var(--bg-void);
+  text-align: center;
+}
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 60px;
+  text-align: left;
+}
+.event-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+}
+.event-card:hover { transform: translateY(-6px); border-color: var(--purple-bright); box-shadow: 0 0 40px rgba(168,85,247,0.1); }
+.event-img {
+  height: 160px;
+  background: linear-gradient(135deg, var(--bg-deep), rgba(124,58,237,0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  border-bottom: 1px solid var(--border-glow);
+  position: relative;
+  overflow: hidden;
+}
+.event-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    rgba(0,229,255,0.02) 10px,
+    rgba(0,229,255,0.02) 20px
+  );
+}
+.event-body { padding: 24px; }
+.event-meta { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.event-date { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--gold); background: rgba(245,158,11,0.1); padding: 3px 10px; border-radius: 4px; }
+.event-type { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--cyan); background: rgba(0,229,255,0.06); padding: 3px 10px; border-radius: 4px; }
+.event-title { font-family: 'Orbitron', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-bright); margin-bottom: 8px; }
+.event-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+/* CONTACT */
+#contact {
+  background: var(--bg-deep);
+  border-top: 1px solid var(--border-glow);
+}
+.contact-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+.contact-info h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 32px;
+}
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.contact-item-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(0,229,255,0.08);
+  border: 1px solid var(--border-glow);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.contact-item-text .label { font-size: 11px; font-family: 'Space Mono', monospace; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 4px; }
+.contact-item-text .value { font-size: 14px; color: var(--text-mid); line-height: 1.6; }
+.contact-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 16px;
+  padding: 36px;
+  backdrop-filter: blur(20px);
+}
+.contact-form h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  margin-bottom: 28px;
+  color: var(--text-bright);
+}
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-size: 12px; font-family: 'Space Mono', monospace; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 8px; }
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border-glow);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--text-bright);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 14px;
+  transition: all 0.3s;
+  outline: none;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 20px rgba(0,229,255,0.1);
+}
+.form-group select option { background: #060d17; }
+.form-group textarea { resize: vertical; min-height: 100px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-submit {
+  width: 100%;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 14px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.form-submit:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,229,255,0.3); }
+
+/* FOOTER */
+footer {
+  background: var(--bg-void);
+  border-top: 1px solid var(--border-glow);
+  padding: 60px 5% 30px;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 48px;
+}
+.footer-brand .logo-text { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700; color: var(--text-bright); letter-spacing: 2px; margin-bottom: 8px; }
+.footer-brand p { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin-top: 12px; }
+.footer-col h4 { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 3px; color: var(--cyan); text-transform: uppercase; margin-bottom: 20px; }
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 10px; }
+.footer-col ul li a { text-decoration: none; font-size: 13px; color: var(--text-dim); transition: color 0.3s; }
+.footer-col ul li a:hover { color: var(--text-bright); }
+.footer-bottom {
+  border-top: 1px solid var(--border-glow);
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.footer-bottom p { font-size: 12px; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+.social-links { display: flex; gap: 12px; }
+.social-link {
+  width: 36px; height: 36px;
+  border: 1px solid var(--border-glow);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+.social-link:hover { border-color: var(--cyan); box-shadow: 0 0 15px rgba(0,229,255,0.2); transform: translateY(-2px); }
+
+/* PARTICLE BG */
+.particles-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* GLOW ORBS */
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* MOBILE NAV */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 280px;
+  background: rgba(2,5,9,0.98);
+  border-left: 1px solid var(--border-glow);
+  backdrop-filter: blur(30px);
+  z-index: 999;
+  padding: 80px 30px;
+  flex-direction: column;
+  gap: 24px;
+  transform: translateX(100%);
+  transition: transform 0.3s;
+}
+.mobile-menu.open { transform: translateX(0); display: flex; }
+.mobile-menu a { color: var(--text-mid); text-decoration: none; font-size: 16px; font-family: 'Orbitron', sans-serif; letter-spacing: 2px; }
+.mobile-menu a:hover { color: var(--cyan); }
+
+/* ANIMATIONS */
+.fade-up {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-up.delay-1 { transition-delay: 0.1s; }
+.fade-up.delay-2 { transition-delay: 0.2s; }
+.fade-up.delay-3 { transition-delay: 0.3s; }
+.fade-up.delay-4 { transition-delay: 0.4s; }
+.fade-up.delay-5 { transition-delay: 0.5s; }
+
+/* GRID LINES BG */
+.grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+/* GLITCH EFFECT */
+@keyframes glitch {
+  0%,100%{text-shadow:none;transform:none}
+  20%{text-shadow:-2px 0 var(--cyan);transform:skewX(-1deg)}
+  40%{text-shadow:2px 0 var(--purple-bright);transform:skewX(1deg)}
+  60%{text-shadow:-1px 0 var(--gold);transform:skewX(-0.5deg)}
+}
+.glitch:hover { animation: glitch 0.3s; }
+
+/* ADMISSION TIMELINE */
+#admissions {
+  background: var(--bg-void);
+  text-align: center;
+}
+.timeline {
+  position: relative;
+  margin-top: 60px;
+  padding: 0 20px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(var(--bg-void), var(--cyan) 20%, var(--purple-bright) 60%, var(--bg-void));
+  transform: translateX(-50%);
+}
+.timeline-item {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: calc(50% + 40px);
+  margin-bottom: 50px;
+  position: relative;
+  text-align: right;
+}
+.timeline-item:nth-child(even) {
+  justify-content: flex-start;
+  padding-right: 0;
+  padding-left: calc(50% + 40px);
+  text-align: left;
+}
+.timeline-dot {
+  position: absolute;
+  left: 50%;
+  top: 20px;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 3px solid var(--bg-void);
+  box-shadow: 0 0 20px var(--cyan);
+  z-index: 1;
+}
+.timeline-item:nth-child(even) .timeline-dot { background: var(--purple-bright); box-shadow: 0 0 20px var(--purple-bright); }
+.timeline-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 12px;
+  padding: 20px 24px;
+  max-width: 300px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+}
+.timeline-content:hover { transform: scale(1.02); border-color: var(--cyan); }
+.timeline-content .tl-date {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.timeline-content .tl-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 6px;
+}
+.timeline-content .tl-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  #about{grid-template-columns:1fr;gap:40px;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+  .contact-inner{grid-template-columns:1fr;}
+  .placement-highlight{grid-template-columns:1fr;}
+}
+@media(max-width:768px){
+  nav{padding:15px 5%;}
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .hero-title{font-size:clamp(28px,8vw,52px);}
+  .hero-stats{gap:24px;}
+  .hero-stat .num{font-size:28px;}
+  section{padding:70px 5%;}
+  .timeline::before{display:none;}
+  .timeline-item,.timeline-item:nth-child(even){padding:0;justify-content:center;text-align:left;}
+  .timeline-dot{display:none;}
+  .recruiter-logos{grid-template-columns:repeat(2,1fr);}
+  .footer-grid{grid-template-columns:1fr;}
+  .footer-bottom{flex-direction:column;text-align:center;}
+  .form-row{grid-template-columns:1fr;}
+  .about-badge{position:relative;bottom:0;right:0;margin-top:20px;}
+  .about-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- PARTICLES CANVAS -->
+<canvas id="particles-canvas" class="particles-bg"></canvas>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a href="#home" class="nav-logo">
+    <div class="logo-icon">🧠</div>
+    <div>
+      <div class="logo-text">LPU School of AI
+        <span>& Emerging Technologies</span>
+      </div>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#programs">Programs</a></li>
+    <li><a href="#research">Research</a></li>
+    <li><a href="#placements">Placements</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#admissions" class="nav-cta">Apply Now →</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about" onclick="closeMobile()">About</a>
+  <a href="#programs" onclick="closeMobile()">Programs</a>
+  <a href="#research" onclick="closeMobile()">Research</a>
+  <a href="#placements" onclick="closeMobile()">Placements</a>
+  <a href="#events" onclick="closeMobile()">Events</a>
+  <a href="#contact" onclick="closeMobile()">Contact</a>
+  <a href="#admissions" onclick="closeMobile()" style="color:var(--cyan)">Apply Now →</a>
+</div>
+
+<!-- HERO -->
+<section id="home" class="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="grid-bg"></div>
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">DEMO VERSION · ESTD 2026</div>
+    <h1 class="hero-title">
+      <span class="line1">Forge the Future with</span>
+      <span class="line2">Artificial Intelligence</span>
+    </h1>
+    <p class="hero-sub">
+      LPU School of AI & Emerging Technologies — where visionary minds build intelligent systems, 
+      disruptive solutions, and define the next era of human-machine collaboration.
+    </p>
+    <div class="hero-actions">
+      <a href="#programs" class="btn-primary">⚡ Explore Programs</a>
+      <a href="#about" class="btn-secondary">▶ Watch Our Vision</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="num" data-count="42">0</span>
+        <span class="label">AI Programs</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num" data-count="1200">0</span>
+        <span class="label">Students</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num" data-count="98">0</span>
+        <span class="label">% Placement</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num" data-count="85">0</span>
+        <span class="label">Research Papers</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <span>SCROLL</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- TECH STRIP -->
+<div class="tech-strip">
+  <div class="tech-strip-inner" id="techStrip">
+    <span class="tech-item"><span class="dot"></span>TensorFlow</span>
+    <span class="tech-item"><span class="dot"></span>PyTorch</span>
+    <span class="tech-item"><span class="dot"></span>Computer Vision</span>
+    <span class="tech-item"><span class="dot"></span>NLP & LLMs</span>
+    <span class="tech-item"><span class="dot"></span>Robotics & Automation</span>
+    <span class="tech-item"><span class="dot"></span>Edge AI / TinyML</span>
+    <span class="tech-item"><span class="dot"></span>Quantum Computing</span>
+    <span class="tech-item"><span class="dot"></span>Blockchain</span>
+    <span class="tech-item"><span class="dot"></span>IoT Systems</span>
+    <span class="tech-item"><span class="dot"></span>FPGA & Embedded AI</span>
+    <span class="tech-item"><span class="dot"></span>Data Engineering</span>
+    <span class="tech-item"><span class="dot"></span>MLOps</span>
+    <span class="tech-item"><span class="dot"></span>Generative AI</span>
+    <span class="tech-item"><span class="dot"></span>Reinforcement Learning</span>
+    <!-- duplicated for seamless loop -->
+    <span class="tech-item"><span class="dot"></span>TensorFlow</span>
+    <span class="tech-item"><span class="dot"></span>PyTorch</span>
+    <span class="tech-item"><span class="dot"></span>Computer Vision</span>
+    <span class="tech-item"><span class="dot"></span>NLP & LLMs</span>
+    <span class="tech-item"><span class="dot"></span>Robotics & Automation</span>
+    <span class="tech-item"><span class="dot"></span>Edge AI / TinyML</span>
+    <span class="tech-item"><span class="dot"></span>Quantum Computing</span>
+    <span class="tech-item"><span class="dot"></span>Blockchain</span>
+    <span class="tech-item"><span class="dot"></span>IoT Systems</span>
+    <span class="tech-item"><span class="dot"></span>FPGA & Embedded AI</span>
+    <span class="tech-item"><span class="dot"></span>Data Engineering</span>
+    <span class="tech-item"><span class="dot"></span>MLOps</span>
+    <span class="tech-item"><span class="dot"></span>Generative AI</span>
+    <span class="tech-item"><span class="dot"></span>Reinforcement Learning</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-visual fade-up">
+    <div class="about-img-container">
+      <img src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=800&auto=format&fit=crop&q=80" alt="AI Research Lab" loading="lazy">
+      <div class="about-img-overlay"></div>
+    </div>
+    <div class="about-badge">
+      <span class="big-num">2026</span>
+      <div class="small-text">ESTABLISHED · DEMO</div>
+    </div>
+  </div>
+  <div class="about-text fade-up delay-2">
+    <div class="section-label">Who We Are</div>
+    <h2 class="section-title">Building Tomorrow's <span class="accent">AI Pioneers</span></h2>
+    <p class="section-desc">
+      The LPU School of AI & Emerging Technologies is a premier research and teaching institution 
+      dedicated to advancing the frontiers of artificial intelligence, machine learning, robotics, 
+      and data science. Located within the Lovely Professional University campus in Phagwara, Punjab, 
+      we nurture India's next generation of AI innovators.
+    </p>
+    <p class="section-desc" style="margin-top:16px;">
+      Our interdisciplinary approach combines rigorous theoretical foundations with hands-on project-based 
+      learning, industry collaborations with global leaders like Quantiphi, and a state-of-the-art 
+      research ecosystem.
+    </p>
+    <div class="about-grid" style="margin-top:32px;">
+      <div class="about-feature fade-up delay-2">
+        <div class="icon">🏛️</div>
+        <h4>World-Class Labs</h4>
+        <p>GPU clusters, robotics labs, AR/VR studios and embedded AI workstations.</p>
+      </div>
+      <div class="about-feature fade-up delay-3">
+        <div class="icon">🤝</div>
+        <h4>Industry Partners</h4>
+        <p>Collaborations with Quantiphi, Microsoft, NVIDIA, Intel & 80+ companies.</p>
+      </div>
+      <div class="about-feature fade-up delay-4">
+        <div class="icon">🌍</div>
+        <h4>Global Reach</h4>
+        <p>Student exchange programs and research ties across 3 continents.</p>
+      </div>
+      <div class="about-feature fade-up delay-5">
+        <div class="icon">🏆</div>
+        <h4>Award-Winning</h4>
+        <p>Nationally ranked among top 5 AI schools in India by multiple agencies.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div id="stats">
+  <div class="stats-grid">
+    <div class="stat-item fade-up">
+      <div class="stat-num cyan" data-target="500">0</div>
+      <div class="stat-label">Active Students</div>
+      <div class="stat-sub">Across all AI programs</div>
+    </div>
+    <div class="stat-item fade-up delay-1">
+      <div class="stat-num purple" data-target="60">0</div>
+      <div class="stat-label">Faculty Members</div>
+      <div class="stat-sub">PhD holders & industry experts</div>
+    </div>
+    <div class="stat-item fade-up delay-2">
+      <div class="stat-num gold" data-target="85">0</div>
+      <div class="stat-label">Research Papers</div>
+      <div class="stat-sub">Published in top journals</div>
+    </div>
+    <div class="stat-item fade-up delay-3">
+      <div class="stat-num green" data-target="42">0</div>
+      <div class="stat-label">Lakh CTC</div>
+      <div class="stat-sub">Highest placement package</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRAMS -->
+<section id="programs">
+  <div class="section-label" style="justify-content:center;">Academic Programs</div>
+  <h2 class="section-title fade-up">Our <span class="accent">Cutting-Edge</span> Degrees</h2>
+  <p class="section-desc fade-up" style="margin:0 auto 0; text-align:center;">
+    Industry-aligned, research-backed programs designed to make you job-ready from day one.
+  </p>
+  <div class="programs-grid">
+    <div class="program-card fade-up delay-1">
+      <div class="prog-badge ug">UNDERGRADUATE</div>
+      <span class="prog-icon">🤖</span>
+      <div class="prog-title">B.Tech in Artificial Intelligence & Machine Learning</div>
+      <p class="prog-desc">Deep dive into neural networks, computer vision, NLP, and intelligent systems. Build production-grade AI with Python, TensorFlow and PyTorch.</p>
+      <div class="prog-tags">
+        <span class="prog-tag">Deep Learning</span>
+        <span class="prog-tag">CV</span>
+        <span class="prog-tag">NLP</span>
+        <span class="prog-tag">MLOps</span>
+      </div>
+      <div class="prog-footer">
+        <div class="prog-duration">Duration: <span>4 Years</span></div>
+        <a href="#admissions" class="prog-link">Enroll →</a>
+      </div>
+    </div>
+    <div class="program-card featured fade-up delay-2">
+      <div class="prog-badge ug">⭐ FLAGSHIP · UNDERGRADUATE</div>
+      <span class="prog-icon">📊</span>
+      <div class="prog-title">B.Tech in AI & Data Analytics <small style="font-size:11px;color:var(--gold)">×Quantiphi</small></div>
+      <p class="prog-desc">Industry co-designed with global AI leader Quantiphi. Master big data pipelines, predictive analytics, and real-time ML systems at scale.</p>
+      <div class="prog-tags">
+        <span class="prog-tag">Big Data</span>
+        <span class="prog-tag">Spark</span>
+        <span class="prog-tag">Cloud AI</span>
+        <span class="prog-tag">Data Viz</span>
+      </div>
+      <div class="prog-footer">
+        <div class="prog-duration">Duration: <span>4 Years</span></div>
+        <a href="#admissions" class="prog-link">Enroll →</a>
+      </div>
+    </div>
+    <div class="program-card fade-up delay-3">
+      <div class="prog-badge ug">UNDERGRADUATE</div>
+      <span class="prog-icon">🦾</span>
+      <div class="prog-title">B.Tech in Robotics & AI</div>
+      <p class="prog-desc">Where hardware meets intelligence. Program robots, build autonomous systems, and design smart embedded AI for the physical world.</p>
+      <div class="prog-tags">
+        <span class="prog-tag">ROS 2</span>
+        <span class="prog-tag">SLAM</span>
+        <span class="prog-tag">Edge AI</span>
+        <span class="prog-tag">FPGA</span>
+      </div>
+      <div class="prog-footer">
+        <div class="prog-duration">Duration: <span>4 Years</span></div>
+        <a href="#admissions" class="prog-link">Enroll →</a>
+      </div>
+    </div>
+    <div class="program-card fade-up delay-1">
+      <div class="prog-badge pg">POSTGRADUATE</div>
+      <span class="prog-icon">🎓</span>
+      <div class="prog-title">MBA in Data Science & Artificial Intelligence</div>
+      <p class="prog-desc">Lead AI-powered organizations. Blend technical AI expertise with business strategy, product thinking, and data-driven leadership.</p>
+      <div class="prog-tags">
+        <span class="prog-tag">Strategy</span>
+        <span class="prog-tag">Product AI</span>
+        <span class="prog-tag">FinTech</span>
+        <span class="prog-tag">Analytics</span>
+      </div>
+      <div class="prog-footer">
+        <div class="prog-duration">Duration: <span>2 Years</span></div>
+        <a href="#admissions" class="prog-link">Enroll →</a>
+      </div>
+    </div>
+    <div class="program-card fade-up delay-2">
+      <div class="prog-badge pg">POSTGRADUATE</div>
+      <span class="prog-icon">💻</span>
+      <div class="prog-title">MCA with AI & Data Science Specialization</div>
+      <p class="prog-desc">Master advanced computing with AI specialization. Build enterprise AI applications, intelligent databases, and scalable cloud systems.</p>
+      <div class="prog-tags">
+        <span class="prog-tag">Cloud</span>
+        <span class="prog-tag">Algorithms</span>
+        <span class="prog-tag">Databases</span>
+        <span class="prog-tag">APIs</span>
+      </div>
+      <div class="prog-footer">
+        <div class="prog-duration">Duration: <span>3 Years</span></div>
+        <a href="#admissions" class="prog-link">Enroll →</a>
+      </div>
+    </div>
+    <div class="program-card fade-up delay-3">
+      <div class="prog-badge diploma">DIPLOMA</div>
+      <span class="prog-icon">⚡</span>
+      <div class="prog-title">Diploma in Applied AI & Machine Learning</div>
+      <p class="prog-desc">Fast-track your AI career with our intensive industry-oriented diploma. Python, statistics, neural networks, and career readiness built in.</p>
+      <div class="prog-tags">
+        <span class="prog-tag">Python</span>
+        <span class="prog-tag">Sklearn</span>
+        <span class="prog-tag">Projects</span>
+        <span class="prog-tag">Certification</span>
+      </div>
+      <div class="prog-footer">
+        <div class="prog-duration">Duration: <span>1 Year</span></div>
+        <a href="#admissions" class="prog-link">Enroll →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESEARCH -->
+<section id="research">
+  <div class="section-label" style="justify-content:center;">Research & Innovation</div>
+  <h2 class="section-title fade-up">Pushing <span class="accent">Boundaries</span> Every Day</h2>
+  <p class="section-desc fade-up" style="margin:0 auto;text-align:center;">
+    Our research centers work at the intersection of AI and critical domains, publishing breakthroughs 
+    and filing patents that shape real industries.
+  </p>
+  <div class="research-grid">
+    <div class="research-card fade-up delay-1">
+      <div class="research-number">01</div>
+      <div class="research-icon">👁️</div>
+      <h3>Computer Vision Lab</h3>
+      <p>Object detection, medical imaging AI, autonomous vehicle perception, and satellite image analysis. Partnered with ISRO for remote sensing research.</p>
+    </div>
+    <div class="research-card fade-up delay-2">
+      <div class="research-number">02</div>
+      <div class="research-icon">🗣️</div>
+      <h3>NLP & Language Intelligence</h3>
+      <p>Building multilingual LLMs, regional language processing for Punjabi and Hindi, and conversational AI for Indian enterprise contexts.</p>
+    </div>
+    <div class="research-card fade-up delay-3">
+      <div class="research-number">03</div>
+      <div class="research-icon">🦿</div>
+      <h3>Embedded AI & TinyML</h3>
+      <p>Deploying neural networks on microcontrollers, ESP32, STM32, and custom FPGA fabric. Edge intelligence for IoT, wearables, and e-skin sensors.</p>
+    </div>
+    <div class="research-card fade-up delay-1">
+      <div class="research-number">04</div>
+      <div class="research-icon">🏥</div>
+      <h3>AI for Healthcare</h3>
+      <p>Deep learning diagnostics, drug discovery pipelines, patient outcome prediction, and medical document understanding systems.</p>
+    </div>
+    <div class="research-card fade-up delay-2">
+      <div class="research-number">05</div>
+      <div class="research-icon">⚛️</div>
+      <h3>Quantum AI Lab</h3>
+      <p>Hybrid quantum-classical algorithms, quantum ML on IBM Quantum hardware, and post-quantum cryptography research.</p>
+    </div>
+    <div class="research-card fade-up delay-3">
+      <div class="research-number">06</div>
+      <div class="research-icon">🌾</div>
+      <h3>AI for Agriculture</h3>
+      <p>Precision farming with drone imagery, crop disease detection, soil analysis AI, and smart irrigation systems for India's agricultural sector.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FACULTY -->
+<section id="faculty">
+  <div class="section-label" style="justify-content:center;">Faculty</div>
+  <h2 class="section-title fade-up">Meet Our <span class="accent">Expert</span> Team</h2>
+  <p class="section-desc fade-up" style="margin:0 auto;text-align:center;">
+    PhD researchers, industry veterans, and published authors shaping the next generation of AI.
+  </p>
+  <div class="faculty-grid">
+    <div class="faculty-card fade-up delay-1">
+      <div class="faculty-avatar">👨‍🔬</div>
+      <div class="faculty-name">Dr. Aryan Mehta</div>
+      <div class="faculty-role">HOD · Dean of AI</div>
+      <div class="faculty-spec">Deep Learning, Computer Vision, Autonomous Systems — 20+ years research at IIT Delhi & MIT</div>
+      <div class="faculty-pubs">📄 48 publications · 🏆 3 patents</div>
+    </div>
+    <div class="faculty-card fade-up delay-2">
+      <div class="faculty-avatar">👩‍💻</div>
+      <div class="faculty-name">Dr. Priya Sharma</div>
+      <div class="faculty-role">Prof. · NLP & Generative AI</div>
+      <div class="faculty-spec">Large Language Models, Multilingual AI, Conversational Agents — ex-Google Brain researcher</div>
+      <div class="faculty-pubs">📄 36 publications · 🏆 2 patents</div>
+    </div>
+    <div class="faculty-card fade-up delay-3">
+      <div class="faculty-avatar">🧑‍🏫</div>
+      <div class="faculty-name">Dr. Raghav Singh</div>
+      <div class="faculty-role">Assoc. Prof. · Robotics</div>
+      <div class="faculty-spec">Autonomous Robots, ROS2, SLAM, Human-Robot Interaction — consultant for DRDO projects</div>
+      <div class="faculty-pubs">📄 29 publications · 🏆 5 patents</div>
+    </div>
+    <div class="faculty-card fade-up delay-4">
+      <div class="faculty-avatar">👩‍🔬</div>
+      <div class="faculty-name">Dr. Nisha Kapoor</div>
+      <div class="faculty-role">Asst. Prof. · Edge AI</div>
+      <div class="faculty-spec">TinyML, Embedded Systems, FPGA Neural Accelerators, IoT Intelligence — Qualcomm collaborator</div>
+      <div class="faculty-pubs">📄 22 publications · 🏆 1 patent</div>
+    </div>
+  </div>
+</section>
+
+<!-- PLACEMENTS -->
+<section id="placements">
+  <div class="section-label" style="justify-content:center;">Career Outcomes</div>
+  <h2 class="section-title fade-up">Where Our <span class="accent">Graduates</span> Go</h2>
+  <div class="placement-highlight">
+    <div class="placement-lhs fade-up">
+      <div style="margin-bottom:24px;">
+        <span class="big-salary">₹42L</span>
+        <div class="salary-label">HIGHEST PACKAGE CTC</div>
+      </div>
+      <div style="border-top:1px solid var(--border-glow);padding-top:20px;margin-bottom:20px;">
+        <span style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:var(--cyan);">₹12L</span>
+        <div class="salary-label">AVERAGE PACKAGE CTC</div>
+      </div>
+      <div style="border-top:1px solid var(--border-glow);padding-top:20px;">
+        <span style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:var(--neon-green);">98%</span>
+        <div class="salary-label">PLACEMENT RATE</div>
+      </div>
+    </div>
+    <div class="fade-up delay-2">
+      <h3 style="font-family:'Orbitron',sans-serif;font-size:18px;margin-bottom:24px;color:var(--text-bright);">Top Recruiters</h3>
+      <div class="recruiter-logos">
+        <div class="recruiter-logo">NVIDIA</div>
+        <div class="recruiter-logo">Microsoft</div>
+        <div class="recruiter-logo">Amazon</div>
+        <div class="recruiter-logo">Google</div>
+        <div class="recruiter-logo">Quantiphi</div>
+        <div class="recruiter-logo">Intel</div>
+        <div class="recruiter-logo">IBM</div>
+        <div class="recruiter-logo">Accenture</div>
+        <div class="recruiter-logo">TCS</div>
+        <div class="recruiter-logo">Infosys</div>
+        <div class="recruiter-logo">Qualcomm</div>
+        <div class="recruiter-logo">Bosch</div>
+      </div>
+      <div style="margin-top:32px;padding:20px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:12px;">
+        <p style="font-size:13px;color:var(--text-mid);line-height:1.8;">
+          "LPU School of AI graduates arrive <strong style="color:var(--cyan)">production-ready</strong>. 
+          The hands-on project exposure and industry-aligned curriculum means zero ramp-up time." 
+          <span style="color:var(--text-dim);font-family:'Space Mono',monospace;font-size:11px;display:block;margin-top:8px;">— Talent Acquisition Lead, Quantiphi India</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section id="events">
+  <div class="section-label" style="justify-content:center;">Campus Life</div>
+  <h2 class="section-title fade-up">Events & <span class="accent">Innovation</span> Calendar</h2>
+  <div class="events-grid">
+    <div class="event-card fade-up delay-1">
+      <div class="event-img">🤖</div>
+      <div class="event-body">
+        <div class="event-meta">
+          <span class="event-date">AUG 2026</span>
+          <span class="event-type">HACKATHON</span>
+        </div>
+        <div class="event-title">AI Genesis Hackathon 2026</div>
+        <p class="event-desc">48-hour national AI hackathon with ₹5L prize pool. Build real-world AI solutions with mentors from Google, NVIDIA, and Microsoft.</p>
+      </div>
+    </div>
+    <div class="event-card fade-up delay-2">
+      <div class="event-img">🎤</div>
+      <div class="event-body">
+        <div class="event-meta">
+          <span class="event-date">OCT 2026</span>
+          <span class="event-type">SYMPOSIUM</span>
+        </div>
+        <div class="event-title">TechVista — AI Research Symposium</div>
+        <p class="event-desc">Annual research paper presentations, invited talks from global AI researchers, and poster sessions showcasing student innovations.</p>
+      </div>
+    </div>
+    <div class="event-card fade-up delay-3">
+      <div class="event-img">🚀</div>
+      <div class="event-body">
+        <div class="event-meta">
+          <span class="event-date">JAN 2027</span>
+          <span class="event-type">EXPO</span>
+        </div>
+        <div class="event-title">Startup Launchpad — AI Edition</div>
+        <p class="event-desc">Student startup demo day with VC investors, incubation pitches, and seed funding opportunities for AI-first ventures from LPU.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ADMISSIONS TIMELINE -->
+<section id="admissions">
+  <div class="section-label" style="justify-content:center;">Admissions 2026-27</div>
+  <h2 class="section-title fade-up">Your Journey <span class="accent">Starts Here</span></h2>
+  <p class="section-desc fade-up" style="margin:0 auto;text-align:center;">
+    Follow these steps to secure your place in India's premier AI school.
+  </p>
+  <div class="timeline">
+    <div class="timeline-item fade-up">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="tl-date">STEP 01 · MAY 2026</div>
+        <div class="tl-title">Register for LPUNEST</div>
+        <p class="tl-desc">Complete online registration at admission.lpu.in and pay the application fee. Choose your preferred AI program.</p>
+      </div>
+    </div>
+    <div class="timeline-item fade-up delay-1">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="tl-date">STEP 02 · JUNE 2026</div>
+        <div class="tl-title">Appear for LPUNEST Exam</div>
+        <p class="tl-desc">National Entrance and Scholarship Test covering Physics, Mathematics, Chemistry, and Aptitude. Online and offline modes available.</p>
+      </div>
+    </div>
+    <div class="timeline-item fade-up delay-2">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="tl-date">STEP 03 · JULY 2026</div>
+        <div class="tl-title">Merit List & Counselling</div>
+        <p class="tl-desc">Check your results, participate in online counselling, and select your branch preference. Scholarship amounts announced.</p>
+      </div>
+    </div>
+    <div class="timeline-item fade-up delay-3">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="tl-date">STEP 04 · AUG 2026</div>
+        <div class="tl-title">Document Verification</div>
+        <p class="tl-desc">Submit original Class 10, 12 marksheets, transfer certificate, and complete the admission formalities on campus or online.</p>
+      </div>
+    </div>
+    <div class="timeline-item fade-up delay-4">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="tl-date">STEP 05 · SEP 2026</div>
+        <div class="tl-title">Welcome to LPU AI School! 🎉</div>
+        <p class="tl-desc">Orientation week, lab tours, faculty meet-and-greet, and the official start of your AI journey begins here.</p>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:50px;text-align:center;">
+    <a href="#contact" class="btn-primary">Apply Now — Seats Limited →</a>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="contact-info fade-up">
+      <div class="section-label">Get In Touch</div>
+      <h2 class="section-title">Talk to <span class="accent">Admissions</span></h2>
+      <p class="section-desc" style="margin-bottom:36px;">
+        Our team is here to guide you through every step of your application journey. 
+        Reach out and we'll respond within 24 hours.
+      </p>
+      <div class="contact-item">
+        <div class="contact-item-icon">📍</div>
+        <div class="contact-item-text">
+          <div class="label">ADDRESS</div>
+          <div class="value">Lovely Professional University, Phagwara, Punjab - 144411, India</div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-icon">📞</div>
+        <div class="contact-item-text">
+          <div class="label">PHONE</div>
+          <div class="value">+91-1824-517-000 · Toll Free: 1800-102-4431</div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-icon">✉️</div>
+        <div class="contact-item-text">
+          <div class="label">EMAIL</div>
+          <div class="value">ai.admissions@lpu.in · research@aitech.lpu.in</div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-icon">🌐</div>
+        <div class="contact-item-text">
+          <div class="label">WEBSITE</div>
+          <div class="value">www.lpu.in/ai-emerging-tech (Demo)</div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-form fade-up delay-2">
+      <h3>🚀 Start Your Application</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>FULL NAME</label>
+          <input type="text" placeholder="Your full name" id="fname">
+        </div>
+        <div class="form-group">
+          <label>EMAIL</label>
+          <input type="email" placeholder="your@email.com" id="femail">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>PHONE</label>
+          <input type="tel" placeholder="+91 XXXXX XXXXX" id="fphone">
+        </div>
+        <div class="form-group">
+          <label>PROGRAM OF INTEREST</label>
+          <select id="fprogram">
+            <option value="">Select program...</option>
+            <option>B.Tech AI & ML</option>
+            <option>B.Tech AI & Data Analytics</option>
+            <option>B.Tech Robotics & AI</option>
+            <option>MBA in Data Science & AI</option>
+            <option>MCA with AI Specialization</option>
+            <option>Diploma in Applied AI</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>MESSAGE / QUERIES</label>
+        <textarea placeholder="Tell us about yourself and what you're looking for..." id="fmessage"></textarea>
+      </div>
+      <button class="form-submit" onclick="submitForm()">SUBMIT APPLICATION →</button>
+      <p id="form-msg" style="display:none;margin-top:16px;padding:12px;background:rgba(0,255,157,0.1);border:1px solid rgba(0,255,157,0.3);border-radius:8px;color:var(--neon-green);font-size:13px;text-align:center;font-family:'Space Mono',monospace;">
+        ✓ Application submitted! We'll contact you within 24 hours.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div class="logo-icon" style="width:40px;height:40px;font-size:18px;">🧠</div>
+        <div class="logo-text" style="font-size:13px;">LPU School of AI<br><span style="font-size:10px;color:var(--text-dim);letter-spacing:2px;">& EMERGING TECHNOLOGIES</span></div>
+      </div>
+      <p>Shaping the future of intelligence — one innovator at a time. Located within the vibrant 600-acre LPU campus, Phagwara, Punjab.</p>
+      <div style="margin-top:20px;padding:12px 16px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;font-size:11px;color:var(--gold);font-family:'Space Mono',monospace;">
+        ⚠️ DEMO WEBSITE — Created for educational purposes
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Programs</h4>
+      <ul>
+        <li><a href="#programs">B.Tech AI & ML</a></li>
+        <li><a href="#programs">B.Tech Robotics & AI</a></li>
+        <li><a href="#programs">AI & Data Analytics</a></li>
+        <li><a href="#programs">MBA — Data Science</a></li>
+        <li><a href="#programs">Diploma in AI</a></li>
+        <li><a href="#programs">PhD Programs</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Research</h4>
+      <ul>
+        <li><a href="#research">Computer Vision Lab</a></li>
+        <li><a href="#research">NLP Center</a></li>
+        <li><a href="#research">Embedded AI Lab</a></li>
+        <li><a href="#research">Quantum AI</a></li>
+        <li><a href="#research">AI for Healthcare</a></li>
+        <li><a href="#research">Publications</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#admissions">Apply Now</a></li>
+        <li><a href="#placements">Placements</a></li>
+        <li><a href="#faculty">Faculty</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a href="#contact">Contact Us</a></li>
+        <li><a href="#">LPU Main Website</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 LPU School of AI & Emerging Technologies (Demo). All rights reserved.</p>
+    <div class="social-links">
+      <a class="social-link" title="LinkedIn">in</a>
+      <a class="social-link" title="Twitter">𝕏</a>
+      <a class="social-link" title="YouTube">▶</a>
+      <a class="social-link" title="Instagram">◎</a>
+      <a class="social-link" title="GitHub">⌥</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ===== CURSOR =====
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let cx = 0, cy = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => {
+  cx = e.clientX; cy = e.clientY;
+  cursor.style.left = cx + 'px';
+  cursor.style.top = cy + 'px';
+});
+function animateRing() {
+  rx += (cx - rx) * 0.12;
+  ry += (cy - ry) * 0.12;
+  cursorRing.style.left = rx + 'px';
+  cursorRing.style.top = ry + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+document.querySelectorAll('a,button,.program-card,.research-card').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.transform = 'translate(-50%,-50%) scale(2)';
+    cursorRing.style.width = '60px';
+    cursorRing.style.height = '60px';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+    cursorRing.style.width = '40px';
+    cursorRing.style.height = '40px';
+  });
+});
+
+// ===== THREE.JS NEURAL NETWORK =====
+(function initHeroCanvas() {
+  const canvas = document.getElementById('hero-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+  camera.position.z = 5;
+
+  // Node geometry
+  const nodeCount = 120;
+  const positions = [];
+  const nodes = [];
+  const geo = new THREE.SphereGeometry(0.035, 8, 8);
+  const nodeMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff });
+  for (let i = 0; i < nodeCount; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = 2 + Math.random() * 1.5;
+    const x = r * Math.sin(phi) * Math.cos(theta);
+    const y = r * Math.sin(phi) * Math.sin(theta);
+    const z = r * Math.cos(phi);
+    positions.push(new THREE.Vector3(x, y, z));
+    const mesh = new THREE.Mesh(geo, nodeMat.clone());
+    mesh.position.set(x, y, z);
+    scene.add(mesh);
+    nodes.push(mesh);
+  }
+
+  // Connections
+  const lineMat = new THREE.LineBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.12 });
+  for (let i = 0; i < nodeCount; i++) {
+    for (let j = i + 1; j < nodeCount; j++) {
+      if (positions[i].distanceTo(positions[j]) < 1.4) {
+        const g = new THREE.BufferGeometry().setFromPoints([positions[i], positions[j]]);
+        scene.add(new THREE.Line(g, lineMat));
+      }
+    }
+  }
+
+  // Glowing central sphere
+  const coreGeo = new THREE.SphereGeometry(0.3, 32, 32);
+  const coreMat = new THREE.MeshBasicMaterial({ color: 0x7c3aed, transparent: true, opacity: 0.5, wireframe: true });
+  const core = new THREE.Mesh(coreGeo, coreMat);
+  scene.add(core);
+
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', e => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouseY = -(e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.003;
+    scene.rotation.y += (mouseX * 0.3 - scene.rotation.y) * 0.02;
+    scene.rotation.x += (mouseY * 0.2 - scene.rotation.x) * 0.02;
+    scene.rotation.y += 0.002;
+    nodes.forEach((n, i) => {
+      n.material.opacity = 0.4 + 0.6 * Math.abs(Math.sin(t + i * 0.3));
+      n.material.transparent = true;
+    });
+    core.rotation.x += 0.003;
+    core.rotation.y -= 0.005;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+    camera.aspect = canvas.offsetWidth / canvas.offsetHeight;
+    camera.updateProjectionMatrix();
+  });
+})();
+
+// ===== PARTICLES CANVAS =====
+(function initParticles() {
+  const canvas = document.getElementById('particles-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pts = Array.from({ length: 60 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: (Math.random() - 0.5) * 0.3,
+    r: Math.random() * 1.5 + 0.5
+  }));
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pts.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,229,255,0.25)';
+      ctx.fill();
+    });
+    // lines
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i + 1; j < pts.length; j++) {
+        const d = Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y);
+        if (d < 120) {
+          ctx.beginPath();
+          ctx.moveTo(pts[i].x, pts[i].y);
+          ctx.lineTo(pts[j].x, pts[j].y);
+          ctx.strokeStyle = `rgba(0,229,255,${0.04 * (1 - d/120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+})();
+
+// ===== SCROLL REVEAL =====
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// ===== COUNTER ANIMATION =====
+function animateCounter(el, target, suffix='') {
+  let start = 0;
+  const dur = 2000;
+  const step = target / (dur / 16);
+  const timer = setInterval(() => {
+    start = Math.min(start + step, target);
+    el.textContent = Math.floor(start) + suffix;
+    if (start >= target) clearInterval(timer);
+  }, 16);
+}
+
+const heroNums = document.querySelectorAll('.hero-stat .num');
+let heroFired = false;
+const heroObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting && !heroFired) {
+    heroFired = true;
+    heroNums.forEach(el => {
+      const v = parseInt(el.dataset.count);
+      animateCounter(el, v, el.dataset.count == '98' ? '%+' : '+');
+    });
+  }
+}, { threshold: 0.5 });
+heroObs.observe(document.querySelector('.hero-stats'));
+
+const statNums = document.querySelectorAll('.stat-num[data-target]');
+let statFired = false;
+const statObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting && !statFired) {
+    statFired = true;
+    statNums.forEach(el => {
+      const v = parseInt(el.dataset.target);
+      const suf = el.classList.contains('green') ? 'L' : '+';
+      animateCounter(el, v, suf);
+    });
+  }
+}, { threshold: 0.5 });
+statObs.observe(document.getElementById('stats'));
+
+// ===== NAVBAR SCROLL =====
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  nav.style.padding = window.scrollY > 50 ? '12px 5%' : '18px 5%';
+});
+
+// ===== HAMBURGER =====
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => {
+  mobileMenu.classList.toggle('open');
+});
+function closeMobile() { mobileMenu.classList.remove('open'); }
+
+// ===== FORM =====
+function submitForm() {
+  const n = document.getElementById('fname').value.trim();
+  const e = document.getElementById('femail').value.trim();
+  const p = document.getElementById('fprogram').value;
+  if (!n || !e || !p) {
+    alert('Please fill in at least your name, email, and program of interest.');
+    return;
+  }
+  const msg = document.getElementById('form-msg');
+  msg.style.display = 'block';
+  document.getElementById('fname').value = '';
+  document.getElementById('femail').value = '';
+  document.getElementById('fphone').value = '';
+  document.getElementById('fprogram').value = '';
+  document.getElementById('fmessage').value = '';
+  setTimeout(() => msg.style.display = 'none', 5000);
+}
+
+// ===== SMOOTH SCROLL =====
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// ===== 3D CARD TILT =====
+document.querySelectorAll('.program-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `translateY(-8px) rotateY(${x*8}deg) rotateX(${-y*5}deg)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
+});
+</script>
+</body>
+</html>
